@@ -37,12 +37,16 @@ function loadScript(src: string): Promise<void> {
 // Load our locally-built canvaskit.js (which exposes the custom PDF binding)
 // rather than the npm package's loader. The npm-bundled .js was compiled
 // against the stock WASM and doesn't see SkPDFDocument.
+//
+// Paths go through Vite's BASE_URL so the app works both at the domain root
+// (dev / Vercel) and under a subpath (GitHub Pages → /pixi-skia-canvas-app/).
 export function loadCanvasKit(): Promise<CanvasKit> {
   if (!pending) {
-    pending = loadScript("/canvaskit.js").then(() => {
+    const base = import.meta.env.BASE_URL;
+    pending = loadScript(`${base}canvaskit.js`).then(() => {
       const init = window.CanvasKitInit;
-      if (!init) throw new Error("CanvasKitInit not found on window after loading /canvaskit.js");
-      return init({ locateFile: (file: string) => `/${file}` });
+      if (!init) throw new Error(`CanvasKitInit not found on window after loading ${base}canvaskit.js`);
+      return init({ locateFile: (file: string) => `${base}${file}` });
     });
   }
   return pending;

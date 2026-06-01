@@ -1,4 +1,4 @@
-# pixi-skia-app
+# pixi-skia-canvas-app
 
 Тестовое задание: одна и та же `PIXI.Container` отрисовывается на двух
 независимых канвасах параллельно — слева через `pixi.js-legacy` в режиме
@@ -6,6 +6,14 @@
 WASM). На той же сцене работают события `pointerdown` / `pointerup` через
 общий `EventEmitter` каждого `DisplayObject`, а сам Skia-канвас умеет
 экспортировать сцену в **векторный PDF** (через `SkPDF`-бэкенд).
+
+**Демо**: `https://<your-github-username>.github.io/pixi-skia-canvas-app/`
+(подставьте свой логин GitHub; ссылка станет доступна после первого
+успешного запуска workflow'а Pages — см. раздел [Деплой](#деплой)).
+
+**Пример PDF**: [scene.pdf](scene.pdf) — сгенерирован прямо в приложении
+кнопкой «Export to PDF», графика — векторная, спрайт встроен как JPEG
+(разрешённое ТЗ исключение).
 
 ---
 
@@ -207,25 +215,65 @@ graphics-плагином). Чтобы получить векторный PDF, 
 
 ## Деплой
 
-Сборка полностью статическая — её можно положить на Vercel / Netlify /
-GitHub Pages простым копированием `dist/`:
+Сборка полностью статическая — это просто `dist/` после `npm run build`.
+Skia / WASM работает «как есть» на любом хостинге, отдающем статику с
+правильным MIME для `.wasm` (что делают и GitHub Pages, и Vercel, и
+Netlify): отдельный хостинг под WASM **не нужен**.
+
+### GitHub Pages (основной вариант)
+
+Репозиторий уже содержит готовый workflow в
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml) — каждый
+`git push` в `main` сам собирает приложение и публикует `dist/` на Pages.
+
+Что нужно один раз сделать на стороне GitHub:
+
+1. В репозитории: **Settings → Pages → Source = "GitHub Actions"** (уже
+   выставлено, если вы пришли из этого README).
+2. Сделать первый `git push` в `main` (или нажать «Run workflow» в
+   вкладке Actions). Через ~1–2 минуты сайт окажется доступен по
+   `https://<username>.github.io/pixi-skia-canvas-app/`.
+
+Важная деталь: GitHub Pages отдаёт проектные сайты по подпути
+`/<repo-name>/`, а не из корня домена. Поэтому в [vite.config.ts](vite.config.ts)
+задано `base: '/pixi-skia-canvas-app/'`, а все обращения к статике
+(`canvaskit.js`, `canvaskit.wasm`, `sprite.png`) идут через
+`import.meta.env.BASE_URL` — см. [src/skia/canvasKit.ts](src/skia/canvasKit.ts)
+и [src/App.tsx](src/App.tsx). Это же значение `base` уважает локальный
+`npm run preview`, поэтому проверить деплой-режим перед пушем можно одной
+командой:
 
 ```bash
-npm run build
-# dist/ содержит index.html + assets + canvaskit.js + canvaskit.wasm
+npm run build && npm run preview
+# открыть http://localhost:4173/pixi-skia-canvas-app/
 ```
 
-Главное — не забыть, что `public/canvaskit.wasm` и `public/canvaskit.js`
-обязательно должны попасть в деплой (Vite копирует всё содержимое
-`public/` в `dist/` автоматически на этапе билда).
+Если имя репозитория отличается от `pixi-skia-canvas-app` — обновите
+значение `base` под него (с косой чертой по краям).
 
-Пример деплоя через CLI Vercel:
+### Vercel / Netlify (запасной вариант)
+
+Они отдают сайт из корня домена, поэтому `base` менять не надо: можно
+даже временно переставить его на `'/'` или вынести в env. Самый быстрый
+способ — Vercel CLI:
 
 ```bash
 npm i -g vercel
 npm run build
 vercel --prod
 ```
+
+Либо подключить репозиторий через vercel.com/new — Vite-пресет
+определится автоматически.
+
+### Что обязательно должно попасть в деплой
+
+- `public/canvaskit.js` + `public/canvaskit.wasm` — кастомная сборка с
+  PDF-бэкендом. Vite копирует всё из `public/` в `dist/` на этапе билда,
+  поэтому в git их лежат как обычные коммитнутые файлы (`public/`
+  *не* в `.gitignore`).
+- `public/sprite.png` — демо-PNG для `PIXI.Sprite`.
+- `index.html` и сгенерированные `dist/assets/*` (Vite пишет их сам).
 
 ---
 

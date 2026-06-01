@@ -9,7 +9,9 @@ import "./App.css";
 
 const SCENE_WIDTH = 800;
 const SCENE_HEIGHT = 600;
-const SPRITE_URL = "/sprite.png";
+// Go through Vite's BASE_URL so the asset resolves correctly when the app is
+// served at a subpath (e.g. GitHub Pages: /pixi-skia-canvas-app/sprite.png).
+const SPRITE_URL = `${import.meta.env.BASE_URL}sprite.png`;
 
 function buildInitialScene(spriteTexture: PIXI.Texture): PIXI.Container {
   const mainContainer = new PIXI.Container();
@@ -31,7 +33,6 @@ function buildInitialScene(spriteTexture: PIXI.Texture): PIXI.Container {
   g2.angle = 45;
   g2.scale.set(1.5, 1.7);
   g2.eventMode = "static";
-  g2.on("pointerdown", () => console.log("g2 pointerdown!"));
   g2.on("pointerup", () => console.log("g2 pointerup!"));
 
   // finishPoly() commits the in-progress `currentPath` (built up by moveTo/lineTo)
