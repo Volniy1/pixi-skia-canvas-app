@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Vendored Skia checkout — multi-GB, only needed locally to rebuild canvaskit.wasm.
+# The prebuilt artifacts live in public/canvaskit.{js,wasm} and ship with the app.
+skia-build/skia/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
