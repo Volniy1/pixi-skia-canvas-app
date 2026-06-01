@@ -1,0 +1,22 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card__header {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  text-align: center;
+}
+
+.card__title {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.card__body {
+  padding: 0;
+}
