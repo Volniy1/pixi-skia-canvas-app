@@ -72,3 +72,5 @@ link - https://skia.org/docs/user/modules/canvaskit/
 ---
 
 **Author**: Arthur Koshelenko
+
+### In terms of AI tools I used Claude Code, the model was Opus 4.7
