@@ -33,6 +33,7 @@ function buildInitialScene(spriteTexture: PIXI.Texture): PIXI.Container {
   g2.angle = 45;
   g2.scale.set(1.5, 1.7);
   g2.eventMode = "static";
+  g2.on("pointerdown", () => console.log("g2 pointerdown!"));
   g2.on("pointerup", () => console.log("g2 pointerup!"));
 
   // finishPoly() commits the in-progress `currentPath` (built up by moveTo/lineTo)
